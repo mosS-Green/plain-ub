@@ -244,9 +244,17 @@ async def reya(bot: BOT, message: Message):
         reply = message.replied
         message_response = await message.reply("...")
 
-        ai_response_text = await handle_photo(imgprmpt, reply)
-        await message_response.edit(ai_response_text)
+        file = await reply.download(in_memory=True)
 
+        mime_type, _ = mimetypes.guess_type(file.name)
+        if mime_type is None:
+            mime_type = "image/unknown"
+
+        image_blob = glm.Blob(mime_type=mime_type, data=file.getvalue())
+        response = await MODEL.generate_content_async([imgprmpt, image_blob])
+        response_text = get_response_text(response)
+        await message_response.edit(response_text)
+    
     elif replied and (replied.audio or replied.voice):
         audprmpt = message.input
         reply = message.replied
@@ -259,9 +267,10 @@ async def reya(bot: BOT, message: Message):
         convo = MODEL.start_chat(history=[])
         response = convo.send_message(prompt)
         response_text = get_response_text(response)
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text = response_text,
-            parse_mode=ParseMode.MARKDOWN,
-            reply_to_message_id=message.reply_id or message.id,
+        message_response = await bot.send_message(
+            chat_id = message.chat.id,
+            text = "...",
+            parse_mode = ParseMode.MARKDOWN,
+            reply_to_message_id = message.reply_id or message.id,
         )
+        await message_response.edit(response_text)
