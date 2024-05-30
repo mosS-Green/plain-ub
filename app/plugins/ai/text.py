@@ -274,3 +274,19 @@ async def reya(bot: BOT, message: Message):
             reply_to_message_id = message.reply_id or message.id,
         )
         await message_response.edit(response_text)
+
+@bot.add_cmd(cmd = "f")
+async def fix(bot: BOT, message: Message):
+    if not (await basic_check(message)):  # fmt:skip
+        return
+        
+    MODEL = TEXT_MODEL
+    prompt = f"REWRITE FOLLOWING MESSAGE AS IS WITH CORRECTION TO GRAMMATICAL ERRORS :- {message.replied.text}"
+    
+    response = await MODEL.generate_content_async(prompt)
+    response_text = get_response_text(response)
+    if not isinstance(message, Message):
+        await message.edit(
+            text=f"{response_text.strip()}",
+            parse_mode=ParseMode.MARKDOWN,
+                )
