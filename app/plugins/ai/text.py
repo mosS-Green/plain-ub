@@ -280,13 +280,10 @@ async def fix(bot: BOT, message: Message):
     if not (await basic_check(message)):  # fmt:skip
         return
         
-    MODEL = TEXT_MODEL
-    prompt = f"REWRITE FOLLOWING MESSAGE AS IS WITH CORRECTION TO GRAMMATICAL ERRORS :- {message.replied.text}"
+    MODEL = MEDIA_MODEL
+    prompt = f"REWRITE FOLLOWING MESSAGE AS IS, WITH NO CHANGES TO FORMAT AND SYMBOLS ETC. AND ONLY WITH CORRECTION TO SPELLING ERRORS :- {message.replied.text}"
     
     response = await MODEL.generate_content_async(prompt)
     response_text = get_response_text(response)
-    if not isinstance(message, Message):
-        await message.edit(
-            text=f"{response_text.strip()}",
-            parse_mode=ParseMode.MARKDOWN,
-                )
+    message_response = message.replied
+    await message_response.edit(response_text)
