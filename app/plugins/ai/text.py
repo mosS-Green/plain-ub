@@ -15,34 +15,48 @@ from app.plugins.ai.media import handle_photo, handle_audio
 
 CONVO_CACHE: dict[str, Convo] = {}
 
-SPECIFIC_GROUP_ID = [-1001898736703, -1002010754513, -1001939171299]
+SPECIFIC_GROUP_ID = [-1001898736703, -1002010754513]
+ASSIST_MESSAGE_ID = 5
+SPG_ID = -1001939171299
 
 @bot.add_cmd(cmd="fh")
 async def fetch_history(bot=bot, message=None):
     history_message_id = int(os.environ.get("HISTORY_MESSAGE_ID"))
     past_message_id = int(os.environ.get("PAST_MESSAGE_ID"))
-    history_message, past_message = await bot.get_messages(
-        chat_id=Config.LOG_CHAT, message_ids=[history_message_id, past_message_id]
+    assist_message_id = ASSIST_MESSAGE_ID
+    
+    history_message, past_message, assist_message = await bot.get_messages(
+        chat_id=Config.LOG_CHAT, message_ids=[history_message_id, past_message_id, assist_message_id]
     )
     
     history = json.loads(history_message.text)
     
     global MHIST
     MHIST = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest",
-    generation_config=GENERATION_CONFIG,
-    system_instruction=history,
-    safety_settings=SAFETY_SETTINGS,
+        model_name="gemini-1.5-flash-latest",
+        generation_config=GENERATION_CONFIG,
+        system_instruction=history,
+        safety_settings=SAFETY_SETTINGS,
     )
     
     past = json.loads(past_message.text)
     
     global MPAST
     MPAST = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest",
-    generation_config=GENERATION_CONFIG,
-    system_instruction=past,
-    safety_settings=SAFETY_SETTINGS,
+        model_name="gemini-1.5-flash-latest",
+        generation_config=GENERATION_CONFIG,
+        system_instruction=past,
+        safety_settings=SAFETY_SETTINGS,
+    )
+    
+    assist = json.loads(assist_message.text)
+    
+    global MASSIST
+    MASSIST = genai.GenerativeModel(
+        model_name="gemini-1.5-flash-latest",
+        generation_config=GENERATION_CONFIG,
+        system_instruction=assist,
+        safety_settings=SAFETY_SETTINGS,
     )
     
     if message is not None:
@@ -107,6 +121,8 @@ async def ai_chat(bot: BOT, message: Message):
         return
     if message.chat.id in SPECIFIC_GROUP_ID:
         onefive = MPAST
+    elif message.chat.id == SPG_ID:
+        onefive = MASSIST
     else:
         onefive = MHIST
     MODEL = onefive if message.cmd == "rxc" else TEXT_MODEL
@@ -126,6 +142,8 @@ async def history_chat(bot: BOT, message: Message):
         return
     if message.chat.id in SPECIFIC_GROUP_ID:
         onefive = MPAST
+    elif message.chat.id == SPG_ID:
+        onefive = MASSIST
     else:
         onefive = MHIST
     reply = message.replied
@@ -222,6 +240,8 @@ async def reya(bot: BOT, message: Message):
         return
     if message.chat.id in SPECIFIC_GROUP_ID:
         onefive = MPAST
+    elif message.chat.id == SPG_ID:
+        onefive = MASSIST
     else:
         onefive = MHIST
     MODEL = MEDIA_MODEL if message.cmd == "r" else onefive
