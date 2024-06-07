@@ -16,14 +16,13 @@ from app.plugins.ai.media import handle_photo, handle_audio
 CONVO_CACHE: dict[str, Convo] = {}
 
 SPECIFIC_GROUP_ID = [-1001898736703, -1002010754513]
-ASSIST_MESSAGE_ID = 5
 SPG_ID = -1001939171299
 
 @bot.add_cmd(cmd="fh")
 async def fetch_history(bot=bot, message=None):
     history_message_id = int(os.environ.get("HISTORY_MESSAGE_ID"))
     past_message_id = int(os.environ.get("PAST_MESSAGE_ID"))
-    assist_message_id = ASSIST_MESSAGE_ID
+    assist_message_id = int(os.environ.get("ASSIST_MESSAGE_ID"))
     
     history_message, past_message, assist_message = await bot.get_messages(
         chat_id=Config.LOG_CHAT, message_ids=[history_message_id, past_message_id, assist_message_id]
