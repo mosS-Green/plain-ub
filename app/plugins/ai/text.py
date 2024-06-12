@@ -17,6 +17,7 @@ CONVO_CACHE: dict[str, Convo] = {}
 
 SPECIFIC_GROUP_ID = [-1001898736703, -1002010754513]
 SPG_ID = -1001939171299
+CONV = []
 
 @bot.add_cmd(cmd="fh")
 async def fetch_history(bot=bot, message=None):
@@ -73,6 +74,8 @@ async def question(bot: BOT, message: Message):
     if not await basic_check(message):
         return
 
+    replied = message.replied
+    
     if replied and replied.photo:
         file = await replied.download(in_memory=True)
 
@@ -93,13 +96,13 @@ async def question(bot: BOT, message: Message):
         response_text = get_response_text(response)
         if not isinstance(message, Message):
             await message.edit(
-                text=f"```\n{prompt}```**AI**:\n{response_text.strip()}",
+                text=f"```\n{prompt}```\n\n**AI**:\n{response_text.strip()}",
                 parse_mode=ParseMode.MARKDOWN,
             )
         else:
             await bot.send_message(
                 chat_id=message.chat.id,
-                text=f"```\n{prompt}```**AI**:\n{response_text.strip()}",
+                text=f"```\n{prompt}```\n\n**AI**:\n{response_text.strip()}",
                 parse_mode=ParseMode.MARKDOWN,
                 reply_to_message_id=message.reply_id or message.id,
             )
@@ -124,7 +127,7 @@ async def ai_chat(bot: BOT, message: Message):
         onefive = MASSIST
     else:
         onefive = MHIST
-    MODEL = onefive if message.cmd == "rxc" else TEXT_MODEL
+    MODEL = onefive if message.cmd == "rxc" else MEDIA_MODEL
     chat = MODEL.start_chat(history=[])
     await do_convo(chat=chat, message=message)
 
@@ -167,7 +170,6 @@ async def history_chat(bot: BOT, message: Message):
 
 async def do_convo(chat, message: Message):
     prompt = message.input
-    name = message.from_user.first_name
     reply_to_message_id = message.id
 
     old_convo = CONVO_CACHE.get(message.unique_chat_user_id)
@@ -224,9 +226,13 @@ async def export_history(chat, message: Message):
     doc = BytesIO(pickle.dumps(chat.history))
     doc.name = "AI_Chat_History.pkl"
     caption = get_response_text(
-        await chat.send_message_async("Summarize our Conversation into one line.")
+        await chat.send_message_async("Give our conversation a concise title.")
     )
     await bot.send_document(chat_id=message.from_user.id, document=doc, caption=caption)
+
+@bot.add_cmd(cmd = "ach")
+async def fix(bot: BOT, message: Message):
+    CONV = message.replied
 
 @bot.add_cmd(cmd=["r","rx"])
 async def reya(bot: BOT, message: Message):
@@ -256,42 +262,31 @@ async def reya(bot: BOT, message: Message):
             prompt = f"{reply_input}\n{name}: {message.input}"
 
     else:
-        prompt = f"{name}: {message.input}"
+        prompt = message.input
 
     if replied and replied.photo:
         imgprmpt = message.input
         reply = message.replied
         message_response = await message.reply("...")
 
-        file = await reply.download(in_memory=True)
+        response_text = await handle_photo(audprmpt, reply, MODEL)
 
-        mime_type, _ = mimetypes.guess_type(file.name)
-        if mime_type is None:
-            mime_type = "image/unknown"
-
-        image_blob = glm.Blob(mime_type=mime_type, data=file.getvalue())
-        response = await MODEL.generate_content_async([imgprmpt, image_blob])
-        response_text = get_response_text(response)
         await message_response.edit(response_text)
     
     elif replied and (replied.audio or replied.voice):
         audprmpt = message.input
         reply = message.replied
         message_response = await message.reply("...")
-
-        ai_response_text = await handle_audio(audprmpt, reply)
-        await message_response.edit(ai_response_text)
+        
+        response_text = await handle_audio(audprmpt, reply, MODEL)
+      
+        await message_response.edit(response_text)
 
     else:
-        convo = MODEL.start_chat(history=[])
+        convo = MODEL.start_chat(history = CONV)
         response = convo.send_message(prompt)
         response_text = get_response_text(response)
-        message_response = await bot.send_message(
-            chat_id = message.chat.id,
-            text = "...",
-            parse_mode = ParseMode.MARKDOWN,
-            reply_to_message_id = message.reply_id or message.id,
-        )
+        message_response = await message.reply("...")
         await message_response.edit(response_text)
 
 @bot.add_cmd(cmd = "f")
