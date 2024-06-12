@@ -44,45 +44,6 @@ VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".gif"}
 AUDIO_EXTS = {".aac", ".mp3", ".opus", ".m4a", ".ogg"}
 
 
-@bot.add_cmd(cmd="ocr")
-async def photo_query(bot: BOT, message: Message):
-    """
-    CMD: OCR
-    INFO: Ask a question to Gemini AI about replied image.
-    USAGE: .ocr [reply to a photo] OCR the image.
-    """
-    prompt = "Write the text with good formatting."
-    reply = message.replied
-    message_response = await message.reply("...")
-
-    if not (reply and reply.photo):
-        await message_response.edit("Reply to an image.")
-        return
-
-    ai_response_text = await handle_photo(prompt, reply)
-    await message_response.edit(ai_response_text)
-
-
-@bot.add_cmd(cmd="ts")
-async def audio_to_text(bot: BOT, message: Message):
-    """
-    CMD: ts (Speech To Text)
-    INFO: Convert Audio files to text.
-    USAGE: .ts [reply to audio file] summarise/transcribe the audio file.
-    """
-    prompt = f"{message.input}, this audio file"
-    reply = message.replied
-    audio = reply.audio or reply.voice
-
-    message_response = await message.reply("...")
-    if not (reply and audio):
-        await message_response.edit("Reply to an audio file and give a prompt.")
-        return
-
-    ai_response_text = await handle_audio(prompt, reply)
-    await message_response.edit(ai_response_text)
-
-
 @bot.add_cmd(cmd="vx")
 async def video_to_text(bot: BOT, message: Message):
     """
@@ -147,14 +108,14 @@ async def download_file(file_name: str, message: Message) -> tuple[str, str]:
     return file_path, download_dir
 
 
-async def handle_audio(prompt: str, message: Message):
+async def handle_audio(prompt: str, message: Message, model: genai.GenerativeModel):
     audio = message.document or message.audio or message.voice
     file_name = getattr(audio, "file_name", "audio.aac")
 
     file_path, download_dir = await download_file(file_name, message)
     file_response = genai.upload_file(path=file_path)
 
-    response = await MEDIA_MODEL.generate_content_async([prompt, file_response])
+    response = await model.generate_content_async([prompt, file_response])
     response_text = get_response_text(response)
 
     genai.delete_file(name=file_response.name)
@@ -171,7 +132,7 @@ async def handle_code(prompt: str, message: Message):
     return get_response_text(response)
 
 
-async def handle_photo(prompt: str, message: Message):
+async def handle_photo(prompt: str, message: Message, model: genai.GenerativeModel):
     file = await message.download(in_memory=True)
 
     mime_type, _ = mimetypes.guess_type(file.name)
@@ -179,7 +140,7 @@ async def handle_photo(prompt: str, message: Message):
         mime_type = "image/unknown"
 
     image_blob = glm.Blob(mime_type=mime_type, data=file.getvalue())
-    response = await MEDIA_MODEL.generate_content_async([prompt, image_blob])
+    response = await model.generate_content_async([prompt, image_blob])
     return get_response_text(response)
 
 
