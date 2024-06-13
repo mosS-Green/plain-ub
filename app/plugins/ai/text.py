@@ -61,10 +61,6 @@ async def fetch_history(bot=bot, message=None):
     if message is not None:
         await message.reply("Done.")
 
-@bot.add_cmd(cmd = "ach")
-async def fix(bot: BOT, message: Message):
-    global CONV
-    CONV = message.replied.text
 
 @bot.add_cmd(cmd="ai")
 async def question(bot: BOT, message: Message):
@@ -277,7 +273,7 @@ async def reya(bot: BOT, message: Message):
         await message_response.edit(response_text)
 
     else:
-        convo = MODEL.start_chat(history = CONV)
+        convo = MODEL.start_chat(history = [])
         response = convo.send_message(prompt)
         response_text = get_response_text(response)
         message_response = await message.reply("...")
