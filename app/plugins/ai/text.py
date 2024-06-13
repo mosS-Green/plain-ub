@@ -253,9 +253,9 @@ async def reya(bot: BOT, message: Message):
     replied = message.replied
 
     if replied and message.input:
-        prompt = f"{replied}\n\n{message.input}"
+        prompt = f"{replied.text}\n\n{message.input}"
     elif not message.input:
-        prompt = replied
+        prompt = replied.text
     else:
         prompt = message.input
 
