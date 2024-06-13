@@ -62,6 +62,9 @@ async def fetch_history(bot=bot, message=None):
     if message is not None:
         await message.reply("Done.")
 
+@bot.add_cmd(cmd = "ach")
+async def fix(bot: BOT, message: Message):
+    CONV = message.replied.text
 
 @bot.add_cmd(cmd="ai")
 async def question(bot: BOT, message: Message):
@@ -229,10 +232,6 @@ async def export_history(chat, message: Message):
         await chat.send_message_async("Give our conversation a concise title.")
     )
     await bot.send_document(chat_id=message.from_user.id, document=doc, caption=caption)
-
-@bot.add_cmd(cmd = "ach")
-async def fix(bot: BOT, message: Message):
-    CONV = message.replied
 
 @bot.add_cmd(cmd=["r","rx"])
 async def reya(bot: BOT, message: Message):
