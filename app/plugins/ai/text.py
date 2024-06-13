@@ -250,26 +250,16 @@ async def reya(bot: BOT, message: Message):
     else:
         onefive = MHIST
     MODEL = MEDIA_MODEL if message.cmd == "r" else onefive
-    name = "Leaf"
     replied = message.replied
 
-    if replied:
-        reply_input = f"{replied.from_user.first_name}: {replied.text}"
-
-        if not message.input:
-            prompt = f"{reply_input}"
-        else:
-            prompt = f"{reply_input}\n{name}: {message.input}"
-
-    else:
-        prompt = message.input
+    prompt = message.input
 
     if replied and replied.photo:
         imgprmpt = message.input
         reply = message.replied
         message_response = await message.reply("...")
 
-        response_text = await handle_photo(audprmpt, reply, MODEL)
+        response_text = await handle_photo(imgprmpt, reply, MODEL)
 
         await message_response.edit(response_text)
     
