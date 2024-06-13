@@ -278,7 +278,7 @@ async def reya(bot: BOT, message: Message):
         await message_response.edit(response_text)
 
     else:
-        convo = MODEL.start_chat(history = [])
+        convo = MODEL.start_chat(history = CONV)
         response = convo.send_message(prompt)
         response_text = get_response_text(response)
         message_response = await message.reply("...")
