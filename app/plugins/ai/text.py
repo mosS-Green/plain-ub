@@ -252,7 +252,12 @@ async def reya(bot: BOT, message: Message):
     MODEL = MEDIA_MODEL if message.cmd == "r" else onefive
     replied = message.replied
 
-    prompt = message.input
+    if replied and message.input:
+        prompt = f"{replied}\n\n{message.input}"
+    elif not message.input:
+        prompt = replied
+    else:
+        prompt = message.input
 
     if replied and replied.photo:
         imgprmpt = message.input
