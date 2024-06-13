@@ -17,7 +17,6 @@ CONVO_CACHE: dict[str, Convo] = {}
 
 SPECIFIC_GROUP_ID = [-1001898736703, -1002010754513]
 SPG_ID = -1001939171299
-CONV = []
 
 @bot.add_cmd(cmd="fh")
 async def fetch_history(bot=bot, message=None):
@@ -64,6 +63,7 @@ async def fetch_history(bot=bot, message=None):
 
 @bot.add_cmd(cmd = "ach")
 async def fix(bot: BOT, message: Message):
+    global CONV
     CONV = message.replied.text
 
 @bot.add_cmd(cmd="ai")
