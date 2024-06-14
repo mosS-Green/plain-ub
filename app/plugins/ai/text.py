@@ -65,57 +65,15 @@ async def fetch_history(bot=bot, message=None):
 @bot.add_cmd(cmd = "ah")
 async def fix(bot: BOT, message: Message):
     global CONV
-    CONV = json.loads(message.replied.text)
-
-@bot.add_cmd(cmd="ai")
-async def question(bot: BOT, message: Message):
-    """
-    CMD: AI
-    INFO: Ask a question to Gemini AI.
-    USAGE: .ai what is the meaning of life.
-    """
-
-    if not await basic_check(message):
-        return
-
-    replied = message.replied
-    
-    if replied and replied.photo:
-        file = await replied.download(in_memory=True)
-
-        mime_type, _ = mimetypes.guess_type(file.name)
-        if mime_type is None:
-            mime_type = "image/unknown"
-
-        image_blob = glm.Blob(mime_type=mime_type, data=file.getvalue())
-        prompt = (
-            f"Now, about the image : {message.input}"
-        )
-
-        response = await IMAGE_MODEL.generate_content_async([prompt, image_blob])
-
+    if message.replied:
+        CONV = json.loads(message.replied.text)
     else:
-        prompt = message.input
-        response = await TEXT_MODEL.generate_content_async(prompt)
-        response_text = get_response_text(response)
-        if not isinstance(message, Message):
-            await message.edit(
-                text=f"```\n{prompt}```\n\n**AI**:\n{response_text.strip()}",
-                parse_mode=ParseMode.MARKDOWN,
-            )
-        else:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=f"```\n{prompt}```\n\n**AI**:\n{response_text.strip()}",
-                parse_mode=ParseMode.MARKDOWN,
-                reply_to_message_id=message.reply_id or message.id,
-            )
+        CONV = []
 
-
-@bot.add_cmd(cmd=["aichat", "rxc"])
+@bot.add_cmd(cmd=["aic", "rxc"])
 async def ai_chat(bot: BOT, message: Message):
     """
-    CMD: AICHAT
+    CMD: AIC
     INFO: Have a Conversation with Gemini AI.
     USAGE:
         .aichat hello
