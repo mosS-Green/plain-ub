@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-dual_mode_arg=""
+dual_mode_arg="@dual_mode_arg="@dual_mode"
 
 if [ ! -z "${USE_DUAL_BRANCH}" ]; then
     dual_mode_arg="@dual_mode"
