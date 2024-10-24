@@ -193,7 +193,6 @@ async def export_history(chat, message: Message):
     await bot.send_document(chat_id=message.from_user.id, document=doc, caption=caption)
 
 @bot.add_cmd(cmd=["ai","ry"])
-@run_basic_check
 async def question(bot: BOT, message: Message):
     """
     CMD: AI
