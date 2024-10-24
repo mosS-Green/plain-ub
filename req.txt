@@ -1,5 +1,5 @@
 # BoilerPlate Code for UB
-# git+https://github.com/thedragonsinn/ub-core.git
+# git+https://github.com/thedragonsinn/ub-core.git@dual-mode
 # moved to scripts/install_ub_core.sh
 
 yt-dlp>=2024.5.27
