@@ -1,8 +1,7 @@
 from app import bot, Message
 from pyrogram.enums import ParseMode
 from g4f.client import Client
-from g4f.client.async_client import AsyncClient
-from g4f.Provider import DeepInfraImage, Liaobots
+from g4f.Provider import Airforce, Liaobots
 
 
 @bot.add_cmd(cmd="if")
@@ -11,7 +10,7 @@ async def af(bot, message: Message):
     provider = Airforce
 )
 
-    response = await client.images.generate(
+    response = await client.images.async_generate(
         model = "flux",
         prompt = f"{message.input}, masterpiece, leica photgraph, texture, perfect lighting, dslr"
     )
@@ -26,7 +25,7 @@ async def gpt(bot, message: Message):
         provider = Liaobots
     )
 
-    response = await client.chat.completions.create(
+    response = await client.chat.completions.async_create(
         model="gpt-4o",
         messages=[{"role": "user", "content": message.input }],
     )
@@ -41,7 +40,7 @@ async def gpt(bot, message: Message):
         provider = Liaobots
     )
 
-    response = await client.chat.completions.create(
+    response = await client.chat.completions.async_create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": message.input }],
     )
