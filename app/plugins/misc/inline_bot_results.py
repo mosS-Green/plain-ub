@@ -24,11 +24,11 @@ def run_with_timeout_guard(func):
     return inner
 
 
-@BOT.add_cmd("ln")
+@BOT.add_cmd("st")
 @run_with_timeout_guard
 async def last_fm_now(bot: BOT, message: Message):
     """
-    CMD: LN
+    CMD: ST
     INFO: Check LastFM Status
     USAGE: .ln
     """
@@ -41,11 +41,11 @@ async def last_fm_now(bot: BOT, message: Message):
     return result.query_id, result.results[0].id, ""
 
 
-@BOT.add_cmd("sn")
+@BOT.add_cmd("sp")
 @run_with_timeout_guard
 async def spotipie_now(bot: BOT, message: Message):
     """
-    CMD: SN
+    CMD: SP
     INFO: Check Spotipie Now
     USAGE: .sn
     """
@@ -54,5 +54,26 @@ async def spotipie_now(bot: BOT, message: Message):
 
     if not result.results:
         return None, None, "No results found."
-
+        
     return result.query_id, result.results[0].id, ""
+
+
+@BOT.add_cmd("dl")
+@run_with_timeout_guard
+async def rsdl(bot: BOT, message: Message):
+    """
+    CMD: DL
+    INFO: use bitch's bot
+    USAGE: .dl link
+    """
+
+    results = await bot.get_inline_bot_results("rsdl_bot", message.input)
+
+    if results.results:
+        first_result = results.results[0]
+        await message.reply_inline_bot_result(
+            query_id=results.query_id,
+            result_id=first_result.id
+        )
+    else:
+        await message.reply("No results found.")
