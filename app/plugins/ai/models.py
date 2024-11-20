@@ -23,7 +23,7 @@ IMAGE_MODEL = genai.GenerativeModel(
 )
 
 MEDIA_MODEL = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest",
+    model_name="gemini-exp-1114",
     generation_config=GENERATION_CONFIG,
     safety_settings=SAFETY_SETTINGS,
 )
