@@ -17,13 +17,13 @@ SAFETY_SETTINGS = [
 ]
 
 IMAGE_MODEL = genai.GenerativeModel(
-    model_name="gemini-pro-vision",
+    model_name="gemini-exp-1206",
     generation_config=GENERATION_CONFIG,
     safety_settings=SAFETY_SETTINGS,
 )
 
 MEDIA_MODEL = genai.GenerativeModel(
-    model_name="gemini-exp-1114",
+    model_name="gemini-exp-1206",
     generation_config=GENERATION_CONFIG,
     safety_settings=SAFETY_SETTINGS,
 )
